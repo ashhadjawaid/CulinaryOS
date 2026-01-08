@@ -17,7 +17,7 @@ export const usePantry = () => {
 export const useAddPantryItem = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: async (item: Omit<PantryItem, '_id'>) => {
+        mutationFn: async (item: Omit<PantryItem, '_id' | 'id'>) => {
             const { data } = await api.post<PantryItem[]>('/pantry', item);
             return data;
         },

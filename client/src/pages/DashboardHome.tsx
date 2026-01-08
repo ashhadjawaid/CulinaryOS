@@ -1,8 +1,8 @@
 import { motion } from 'framer-motion';
 import { usePantry, useRecipes, useMealPlan } from '../hooks/useCulinary';
-import { Box, BookOpen, Calendar, Activity, ChevronRight, Clock, User, Sparkles } from 'lucide-react';
+import { Box, BookOpen, Calendar, Activity, ChevronRight, Clock, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { formatDate } from '../lib/utils'; // Assuming this exists
+
 
 export function DashboardHome() {
     const { data: pantry } = usePantry();

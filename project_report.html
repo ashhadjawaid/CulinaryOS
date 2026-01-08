@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CulinaryOS - Project Report</title>
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ startOnLoad: true });
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400&display=swap');
+
+        :root {
+            --primary: #0ea5e9; /* Sky-500 */
+            --secondary: #0f172a; /* Slate-900 */
+            --accent: #8b5cf6; /* Violet-500 */
+            --text-dark: #1e293b;
+            --text-light: #64748b;
+            --bg-light: #f1f5f9;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            margin: 0;
+            padding: 0;
+            background: white;
+        }
+
+        .page {
+            max-width: 210mm;
+            min-height: 297mm;
+            margin: 0 auto;
+            background: white;
+            padding: 40px 60px;
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        @media print {
+            body { background: none; }
+            .page { 
+                margin: 0; 
+                box-shadow: none;
+                page-break-after: always;
+            }
+        }
+
+        /* Typography */
+        h1, h2, h3 { color: var(--secondary); }
+        h1 { font-size: 2.2em; border-bottom: 3px solid var(--primary); padding-bottom: 10px; }
+        h2 { font-size: 1.5em; color: var(--primary); margin-top: 30px; }
+        h3 { font-size: 1.2em; color: var(--accent); margin-top: 20px; }
+        
+        .title-page {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            height: 90vh;
+        }
+        
+        .main-title { font-size: 3.5em; font-weight: 800; color: var(--primary); margin: 0; }
+        .sub-title { font-size: 2em; color: var(--secondary); margin-bottom: 30px; }
+        
+        /* Components */
+        .feature-card {
+            background: var(--bg-light);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 5px solid var(--primary);
+        }
+
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9em;
+            overflow-x: auto;
+        }
+
+        .diagram-box {
+            border: 1px solid #e2e8f0;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        .team-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 40px;
+        }
+        .team-table th, .team-table td {
+            padding: 12px;
+            border-bottom: 1px solid #e2e8f0;
+            text-align: left;
+        }
+        .team-table th { color: var(--primary); }
+
+    </style>
+</head>
+<body>
+
+    <!-- PAGE 1: TITLE -->
+    <div class="page">
+        <div class="title-page">
+            <h1 class="main-title">CulinaryOS</h1>
+            <h2 class="sub-title">Final Project Report</h2>
+            <br>
+            <p><strong>Course:</strong> Web Engineering</p>
+            <p><strong>Session:</strong> 2026</p>
+            
+            <table class="team-table">
+                <tr><th>Student Name</th><th>Student ID</th></tr>
+                <tr><td>Ashhad Jawaid</td><td>2023F-BCS-172</td></tr>
+                <tr><td>Rehan Hasan</td><td>2023F-BCS-166</td></tr>
+                <tr><td>Hamza Shahid</td><td>2023F-BCS-298</td></tr>
+                <tr><td>Saad Durrani</td><td>2023F-BCS-180</td></tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- PAGE 2: ABSTRACT & OVERVIEW -->
+    <div class="page">
+        <h1>1. Abstract</h1>
+        <p>CulinaryOS is a modern kitchen management system designed to solve common household problems related to food organization. By digitizing the pantry, simplifying recipe management, and enabling visual meal planning, CulinaryOS helps users save time, reduce waste, and improve their cooking experience. This report details the design, architecture, and implementation of the system.</p>
+
+        <h1>2. System Overview</h1>
+        <p>The application is built as a Single Page Application (SPA) using the MERN stack (MongoDB, Express, React, Node.js). It features a responsive design, real-time feedback, and secure authentication.</p>
+
+        <h2>Core Modules</h2>
+        <div class="feature-card">
+            <h3>🔐 Authentication</h3>
+            <p>Secure login and registration using JWT and Bcrypt. Protects user data and ensures private access to personal pantries.</p>
+        </div>
+        <div class="feature-card">
+            <h3>🥕 Pantry Management</h3>
+            <p>CRUD operations for pantry items. Users can categorize items (Produce, Dairy, etc.) and track quantities.</p>
+        </div>
+        <div class="feature-card">
+            <h3>🍲 Recipe Hub</h3>
+            <p>A place to save and view recipes. Integrated with the pantry to suggest meals based on available ingredients.</p>
+        </div>
+        <div class="feature-card">
+            <h3>📅 Meal Planner</h3>
+            <p>A drag-and-drop interface for weekly meal planning, utilizing data from both the pantry and recipe modules.</p>
+        </div>
+    </div>
+
+    <!-- PAGE 3: ARCHITECTURE -->
+    <div class="page">
+        <h1>3. System Architecture</h1>
+        <p>The system follows a standard Client-Server architecture. The React frontend communicates with the Express backend via RESTful APIs. Data is stored in a MongoDB database.</p>
+        
+        <div class="diagram-box">
+            <pre class="mermaid">
+            graph TD
+                U[User] -->|Browser| C[Client (React SPA)]
+                C -->|HTTP Requests| S[Server (Node/Express)]
+                S -->|Auth Middleware| A[Auth Controller]
+                S -->|API Routes| P[Pantry/Recipe Controllers]
+                A -->|Read/Write| DB[(MongoDB)]
+                P -->|Read/Write| DB
+            </pre>
+        </div>
+
+        <h1>4. Implementation Details</h1>
+        
+        <h2>Frontend (Client)</h2>
+        <p>Developed with **React 19** and **Vite** for high performance. **Tailwind CSS** is used for styling, providing a utility-first approach that ensures design consistency.</p>
+        <div class="code-block">
+            // Example Hook Usage<br>
+            const { pantryItems } = useCulinary();<br>
+            <br>
+            return (<br>
+              &lt;div className="grid grid-cols-3 gap-4"&gt;<br>
+                {pantryItems.map(item => (<br>
+                  &lt;PantryCard key={item.id} item={item} /&gt;<br>
+                ))}<br>
+              &lt;/div&gt;<br>
+            );
+        </div>
+    </div>
+
+    <!-- PAGE 4: DATABASE & CONCLUSION -->
+    <div class="page">
+        <h1>5. Database Design</h1>
+        <p>We used Mongoose to model our data. Key schemas include User, PantryItem, and Recipe.</p>
+        
+        <div class="feature-card">
+            <h3>User Schema</h3>
+            <p>Stores username, email, and hashed password.</p>
+        </div>
+        <div class="feature-card">
+            <h3>PantryItem Schema</h3>
+            <p>Fields: name, category, quantity, unit, user (ref).</p>
+        </div>
+
+        <h1>6. Conclusion</h1>
+        <p>CulinaryOS successfully addresses the need for a digital kitchen assistant. The modular design allows for easy scalability. Future improvements could include AI-powered recipe suggestions based on pantry expiry dates and mobile app development.</p>
+
+        <h2>References</h2>
+        <ul>
+            <li>React Documentation (react.dev)</li>
+            <li>Node.js API Reference</li>
+            <li>MongoDB Manual</li>
+            <li>Tailwind CSS Docs</li>
+        </ul>
+    </div>
+
+</body>
+</html>

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useRecipes, useAddPantryItem } from '../../hooks/useCulinary'; // Assuming useRecipes is enough
-import { X, Loader2, Plus, Search } from 'lucide-react';
+import { useRecipes } from '../../hooks/useCulinary'; // Assuming useRecipes is enough
+import { X, Search } from 'lucide-react';
 import { cn } from '../../lib/utils'; // Assuming cn utility exists
 
 type AddMealModalProps = {
@@ -22,7 +22,7 @@ const MEAL_COLORS = [
 ];
 
 export function AddMealModal({ isOpen, onClose, day, onAdd }: AddMealModalProps) {
-    const { data: recipes, isLoading } = useRecipes();
+    const { data: recipes } = useRecipes();
     const [search, setSearch] = useState('');
     const [selectedRecipe, setSelectedRecipe] = useState<any>(null);
     const [customDescription, setCustomDescription] = useState('');
