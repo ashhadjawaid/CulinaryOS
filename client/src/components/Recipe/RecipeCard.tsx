@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { Clock, Users, ChefHat } from 'lucide-react';
+import { DiabeticBadge } from '../Dietary/DiabeticBadge';
 import type { Recipe } from '../../data/mockRecipes';
 
 interface RecipeCardProps {
@@ -28,8 +29,11 @@ export function RecipeCard({ recipe, onClick, index }: RecipeCardProps) {
                 />
 
                 {/* Difficulty Badge */}
-                <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-md text-foreground text-xs font-bold px-3 py-1.5 rounded-full shadow-sm">
-                    {recipe.difficulty || 'Medium'}
+                <div className="absolute top-3 right-3 flex flex-col gap-2 items-end">
+                    <div className="bg-white/90 backdrop-blur-md text-foreground text-xs font-bold px-3 py-1.5 rounded-full shadow-sm">
+                        {recipe.difficulty || 'Medium'}
+                    </div>
+                    {recipe.calories < 400 && <DiabeticBadge />}
                 </div>
 
                 {/* Pantry Match Overlay Bar (Inside Image) */}

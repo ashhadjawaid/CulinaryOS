@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useUpdateRecipe, useDeleteRecipe } from '../../hooks/useCulinary';
 import { Trash2, Edit2, Clock, Flame, BookOpen, X, Loader2, Plus } from 'lucide-react';
+import { SugarAlert } from '../Dietary/SugarAlert';
 
 import { toast } from 'sonner';
 
@@ -214,37 +215,43 @@ export function RecipeDetailModal({ isOpen, onClose, recipe }: RecipeDetailModal
                                     </div>
 
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                        {formData.ingredients.map((ing, idx) => (
-                                            <div key={idx} className={`flex items-center justify-between p-3 rounded-xl border ${isEditing ? 'border-primary/30 bg-primary/5' : 'border-border/40 bg-muted/20'}`}>
-                                                {isEditing ? (
-                                                    <div className="flex gap-2 w-full">
-                                                        <input
-                                                            value={ing.name}
-                                                            onChange={(e) => handleIngredientChange(idx, 'name', e.target.value)}
-                                                            className="flex-1 bg-background border border-border rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-primary/50"
-                                                            placeholder="Name"
-                                                        />
-                                                        <input
-                                                            value={ing.amount}
-                                                            onChange={(e) => handleIngredientChange(idx, 'amount', e.target.value)}
-                                                            className="w-20 bg-background border border-border rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-primary/50 text-center"
-                                                            placeholder="Qty"
-                                                        />
-                                                        <button
-                                                            onClick={() => handleRemoveIngredient(idx)}
-                                                            className="text-destructive hover:bg-destructive/10 p-1.5 rounded-md transition-colors"
-                                                        >
-                                                            <X className="size-3" />
-                                                        </button>
+                                        {formData.ingredients.map((ing, idx) => {
+                                            const isSugar = /sugar|syrup|honey/i.test(ing.name);
+                                            return (
+                                                <div key={idx} className="flex flex-col">
+                                                    <div className={`flex items-center justify-between p-3 rounded-xl border ${isEditing ? 'border-primary/30 bg-primary/5' : 'border-border/40 bg-muted/20'}`}>
+                                                        {isEditing ? (
+                                                            <div className="flex gap-2 w-full">
+                                                                <input
+                                                                    value={ing.name}
+                                                                    onChange={(e) => handleIngredientChange(idx, 'name', e.target.value)}
+                                                                    className="flex-1 bg-background border border-border rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-primary/50"
+                                                                    placeholder="Name"
+                                                                />
+                                                                <input
+                                                                    value={ing.amount}
+                                                                    onChange={(e) => handleIngredientChange(idx, 'amount', e.target.value)}
+                                                                    className="w-20 bg-background border border-border rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-primary/50 text-center"
+                                                                    placeholder="Qty"
+                                                                />
+                                                                <button
+                                                                    onClick={() => handleRemoveIngredient(idx)}
+                                                                    className="text-destructive hover:bg-destructive/10 p-1.5 rounded-md transition-colors"
+                                                                >
+                                                                    <X className="size-3" />
+                                                                </button>
+                                                            </div>
+                                                        ) : (
+                                                            <>
+                                                                <span className="font-medium text-sm">{ing.name}</span>
+                                                                <span className="text-sm text-foreground/70 bg-secondary px-2.5 py-1 rounded-md font-medium">{ing.amount}</span>
+                                                            </>
+                                                        )}
                                                     </div>
-                                                ) : (
-                                                    <>
-                                                        <span className="font-medium text-sm">{ing.name}</span>
-                                                        <span className="text-sm text-foreground/70 bg-secondary px-2.5 py-1 rounded-md font-medium">{ing.amount}</span>
-                                                    </>
-                                                )}
-                                            </div>
-                                        ))}
+                                                    {!isEditing && isSugar && <SugarAlert ingredientName={ing.name} />}
+                                                </div>
+                                            );
+                                        })}
                                         {isEditing && (
                                             <button
                                                 onClick={handleAddIngredient}

@@ -22,6 +22,7 @@ export function MealPlanner() {
     const [localMeals, setLocalMeals] = useState<Meal[]>([]);
     const [activeId, setActiveId] = useState<string | null>(null);
     const [addModal, setAddModal] = useState<{ isOpen: boolean; day: string }>({ isOpen: false, day: '' });
+    const [editingMeal, setEditingMeal] = useState<Meal | null>(null);
 
     // Sync server state to local state
     useEffect(() => {
@@ -71,6 +72,22 @@ export function MealPlanner() {
         updatePlan(updatedMeals);
     };
 
+    const handleEditMeal = (id: string, recipeId: string, description: string, color: string) => {
+        const updatedMeals = localMeals.map(meal =>
+            meal.id === id ? { ...meal, recipeId, description, color } : meal
+        );
+        setLocalMeals(updatedMeals);
+        updatePlan(updatedMeals);
+        setEditingMeal(null);
+    };
+
+    const handleDeleteMeal = (id: string) => {
+        const updatedMeals = localMeals.filter(meal => meal.id !== id);
+        setLocalMeals(updatedMeals);
+        updatePlan(updatedMeals);
+        setEditingMeal(null);
+    };
+
     if (isLoading && localMeals.length === 0) return <div className="p-10 text-center animate-pulse">Loading planner...</div>;
 
     return (
@@ -84,6 +101,7 @@ export function MealPlanner() {
                             title={day}
                             meals={localMeals.filter(m => m.day === day)}
                             onAdd={() => setAddModal({ isOpen: true, day })}
+                            onEdit={(meal) => setEditingMeal(meal)}
                         />
                     ))}
                 </div>
@@ -103,11 +121,22 @@ export function MealPlanner() {
                 day={addModal.day}
                 onAdd={handleAddMeal}
             />
+
+            {/* Edit Modal (reuses AddMealModal) */}
+            <AddMealModal
+                isOpen={!!editingMeal}
+                onClose={() => setEditingMeal(null)}
+                day={editingMeal?.day || ''}
+                onAdd={() => { }} // Not used in edit mode
+                initialData={editingMeal}
+                onEdit={handleEditMeal}
+                onDelete={handleDeleteMeal}
+            />
         </>
     );
 }
 
-function PlannerColumn({ id, title, meals, onAdd }: { id: string; title: string, meals: Meal[], onAdd: () => void }) {
+function PlannerColumn({ id, title, meals, onAdd, onEdit }: { id: string; title: string, meals: Meal[], onAdd: () => void, onEdit: (meal: Meal) => void }) {
     const { setNodeRef, isOver } = useDroppable({
         id: id,
     });
@@ -129,8 +158,8 @@ function PlannerColumn({ id, title, meals, onAdd }: { id: string; title: string,
 
             <div className="flex flex-col gap-2 h-full overflow-y-auto min-h-[100px]">
                 <AnimatePresence>
-                    {meals.map((meal) => (
-                        <PlannerCard key={meal.id} meal={meal} />
+                    {meals.map((meal, idx) => (
+                        <PlannerCard key={meal.id || idx} meal={meal} onClick={() => onEdit(meal)} />
                     ))}
                 </AnimatePresence>
             </div>
@@ -138,7 +167,7 @@ function PlannerColumn({ id, title, meals, onAdd }: { id: string; title: string,
     );
 }
 
-function PlannerCard({ meal }: { meal: Meal }) {
+function PlannerCard({ meal, onClick }: { meal: Meal, onClick: () => void }) {
     const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
         id: meal.id,
     });
@@ -167,6 +196,7 @@ function PlannerCard({ meal }: { meal: Meal }) {
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8 }}
+            onClick={onClick}
             {...listeners}
             {...attributes}
             className={cn(

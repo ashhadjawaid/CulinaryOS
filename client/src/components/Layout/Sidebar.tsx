@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, ChefHat, BookOpen, CalendarDays, Package, LogOut, X } from 'lucide-react';
+import { LayoutDashboard, ChefHat, BookOpen, CalendarDays, Package, LogOut, X, ListTodo, Video } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { useAuth } from '../../context/AuthContext';
 import { ThemeToggle } from '../ThemeToggle';
@@ -19,9 +19,11 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
 
     const links = [
         { name: 'Dashboard', icon: LayoutDashboard, path: '/' },
+        { name: 'Orders', icon: ListTodo, path: '/orders' },
         { name: 'Pantry', icon: Package, path: '/pantry' },
         { name: 'Recipes', icon: BookOpen, path: '/recipes' },
         { name: 'Meal Planner', icon: CalendarDays, path: '/planner' },
+        { name: 'Videos', icon: Video, path: '/videos' },
     ];
 
     const SidebarContent = () => (

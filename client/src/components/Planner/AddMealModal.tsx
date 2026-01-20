@@ -1,14 +1,25 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useRecipes } from '../../hooks/useCulinary'; // Assuming useRecipes is enough
-import { X, Search } from 'lucide-react';
-import { cn } from '../../lib/utils'; // Assuming cn utility exists
+import { useRecipes } from '../../hooks/useCulinary';
+import { X, Search, Trash2 } from 'lucide-react';
+import { cn } from '../../lib/utils';
+
+type Meal = {
+    id: string;
+    description: string;
+    day: string;
+    color: string;
+    recipeId: string;
+};
 
 type AddMealModalProps = {
     isOpen: boolean;
     onClose: () => void;
     day: string;
     onAdd: (recipeId: string, description: string, color: string) => void;
+    initialData?: Meal | null;
+    onEdit?: (id: string, recipeId: string, description: string, color: string) => void;
+    onDelete?: (id: string) => void;
 };
 
 // Pastel colors for meal cards
@@ -21,12 +32,31 @@ const MEAL_COLORS = [
     'bg-yellow-100 border-yellow-200 text-yellow-800 dark:bg-yellow-900/80 dark:border-yellow-700 dark:text-yellow-50',
 ];
 
-export function AddMealModal({ isOpen, onClose, day, onAdd }: AddMealModalProps) {
+export function AddMealModal({ isOpen, onClose, day, onAdd, initialData, onEdit, onDelete }: AddMealModalProps) {
     const { data: recipes } = useRecipes();
     const [search, setSearch] = useState('');
     const [selectedRecipe, setSelectedRecipe] = useState<any>(null);
     const [customDescription, setCustomDescription] = useState('');
     const [selectedColor, setSelectedColor] = useState(MEAL_COLORS[0]);
+
+    useEffect(() => {
+        if (isOpen && initialData) {
+            setSearch(initialData.description);
+            setCustomDescription(initialData.description);
+            setSelectedColor(initialData.color);
+            // Try to find recipe if it matches
+            if (recipes && initialData.recipeId && !initialData.recipeId.startsWith('custom-')) {
+                const found = recipes.find(r => r.id === initialData.recipeId || r._id === initialData.recipeId);
+                if (found) setSelectedRecipe(found);
+            }
+        } else if (isOpen && !initialData) {
+            // Reset for new add
+            setSearch('');
+            setCustomDescription('');
+            setSelectedRecipe(null);
+            setSelectedColor(MEAL_COLORS[0]);
+        }
+    }, [isOpen, initialData, recipes]);
 
     const filteredRecipes = recipes?.filter(r =>
         r.title.toLowerCase().includes(search.toLowerCase())
@@ -40,8 +70,21 @@ export function AddMealModal({ isOpen, onClose, day, onAdd }: AddMealModalProps)
 
         if (!description) return;
 
-        onAdd(recipeId, description, selectedColor);
+        if (initialData && onEdit) {
+            onEdit(initialData.id, recipeId, description, selectedColor);
+        } else {
+            onAdd(recipeId, description, selectedColor);
+        }
         handleClose();
+    };
+
+    const handleDelete = () => {
+        if (initialData && onDelete) {
+            if (window.confirm("Are you sure you want to delete this meal?")) {
+                onDelete(initialData.id);
+                handleClose();
+            }
+        }
     };
 
     const handleClose = () => {
@@ -73,7 +116,9 @@ export function AddMealModal({ isOpen, onClose, day, onAdd }: AddMealModalProps)
                     >
                         <div className="bg-card border border-border/50 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-full">
                             <div className="flex items-center justify-between p-5 border-b border-border/50 bg-secondary/10">
-                                <h2 className="text-xl font-bold">Add Meal for <span className="text-primary">{day}</span></h2>
+                                <h2 className="text-xl font-bold">
+                                    {initialData ? 'Edit Meal' : `Add Meal for`} <span className="text-primary">{!initialData && day}</span>
+                                </h2>
                                 <button onClick={handleClose} className="p-2 hover:bg-muted rounded-full transition-colors">
                                     <X className="size-5 text-muted-foreground" />
                                 </button>
@@ -143,6 +188,17 @@ export function AddMealModal({ isOpen, onClose, day, onAdd }: AddMealModalProps)
                                 </div>
 
                                 <div className="pt-4 flex gap-3">
+                                    {initialData && (
+                                        <button
+                                            type="button"
+                                            onClick={handleDelete}
+                                            className="px-4 py-3 rounded-xl border border-red-200 text-red-600 hover:bg-red-50 transition-colors mr-auto"
+                                            title="Delete Meal"
+                                        >
+                                            <Trash2 className="size-5" />
+                                        </button>
+                                    )}
+
                                     <button
                                         type="button"
                                         onClick={handleClose}
@@ -158,7 +214,7 @@ export function AddMealModal({ isOpen, onClose, day, onAdd }: AddMealModalProps)
                                             (!customDescription && !selectedRecipe) && "opacity-70 cursor-not-allowed"
                                         )}
                                     >
-                                        Add to Plan
+                                        {initialData ? 'Save Changes' : 'Add to Plan'}
                                     </button>
                                 </div>
                             </form>

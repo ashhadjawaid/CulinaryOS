@@ -3,6 +3,8 @@ import { protect } from '../middleware/authMiddleware';
 import { getPantry, addPantryItem, updatePantryItem, deletePantryItem } from '../controllers/pantryController';
 import { getRecipes, getRecommendations, seedRecipes, addRecipe, updateRecipe, deleteRecipe } from '../controllers/recipeController';
 import { getMealPlan, saveMealPlan } from '../controllers/plannerController';
+import orderRoutes from './orderRoutes';
+import aiRoutes from './aiRoutes';
 
 const router = express.Router();
 import { registerUser, loginUser, updatePassword, updateProfile } from '../controllers/authController';
@@ -30,5 +32,11 @@ router.post('/seed', seedRecipes); // Helper to seed DB
 // Planner Routes
 router.get('/planner', protect as any, getMealPlan);
 router.post('/planner', protect as any, saveMealPlan);
+
+// Order Routes
+router.use('/orders', orderRoutes);
+
+// AI & Video Routes
+router.use('/ai', aiRoutes);
 
 export default router;

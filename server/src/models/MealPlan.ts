@@ -4,8 +4,9 @@ const MealPlanSchema = new mongoose.Schema({
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     weekStartDate: { type: Date, required: true },
     meals: [{
+        id: { type: String, required: true }, // Persist client-side ID
         day: { type: String, required: true },
-        recipeId: { type: String, required: true }, // Keeping loose reference for flexibility or could be ObjectId
+        recipeId: { type: String, required: true },
         description: { type: String, required: true },
         color: { type: String }
     }]

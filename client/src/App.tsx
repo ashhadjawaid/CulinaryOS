@@ -8,6 +8,9 @@ import { AppLayout } from './components/Layout/AppLayout';
 import { PantryView } from './components/Pantry/PantryView';
 import { RecipeGrid } from './components/Recipe/RecipeGrid';
 import { MealPlanner } from './components/Planner/MealPlanner';
+import Orders from './pages/Orders';
+import VideoRecipes from './pages/VideoRecipes';
+import AIChefChat from './components/AI/AIChefChat';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'sonner';
 
@@ -42,12 +45,15 @@ export default function App() {
               >
                 <Route path="/" element={<DashboardHome />} />
                 <Route path="/pantry" element={<PantryView />} />
+                <Route path="/orders" element={<Orders />} />
+                <Route path="/videos" element={<VideoRecipes />} />
                 <Route path="/recipes" element={<RecipeGrid />} />
                 <Route path="/planner" element={<MealPlanner />} />
               </Route>
 
               <Route path="*" element={<Navigate to="/" />} />
             </Routes>
+            <AIChefChat />
           </AuthProvider>
         </ThemeProvider>
       </QueryClientProvider>

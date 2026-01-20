@@ -1,20 +1,52 @@
+import { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { usePantry, useRecipes, useMealPlan } from '../hooks/useCulinary';
 import { Box, BookOpen, Calendar, Activity, ChevronRight, Clock, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
-
+import { format } from 'date-fns';
 
 export function DashboardHome() {
     const { data: pantry } = usePantry();
     const { data: recipes } = useRecipes();
     const { data: mealPlan } = useMealPlan();
 
+    // 1. Calculate Pantry Matches
+    const matchedRecipes = useMemo(() => {
+        if (!recipes || !pantry) return [];
+
+        return recipes.map((recipe: any) => {
+            const totalIngredients = recipe.ingredients.length;
+            if (totalIngredients === 0) return { ...recipe, matchPercentage: 0 };
+
+            const matches = recipe.ingredients.filter((req: any) =>
+                pantry.some((item: any) =>
+                    item.name.toLowerCase().includes(req.name.toLowerCase()) ||
+                    req.name.toLowerCase().includes(item.name.toLowerCase())
+                )
+            ).length;
+
+            const percentage = Math.round((matches / totalIngredients) * 100);
+            return { ...recipe, matchPercentage: percentage };
+        }).sort((a: any, b: any) => b.matchPercentage - a.matchPercentage);
+    }, [recipes, pantry]);
+
+    const avgMatch = matchedRecipes.length > 0
+        ? Math.round(matchedRecipes.reduce((acc: number, r: any) => acc + r.matchPercentage, 0) / matchedRecipes.length)
+        : 0;
+
+    // 2. Get Today's Plan
+    const todaysPlan = useMemo(() => {
+        if (!mealPlan) return [];
+        const today = format(new Date(), 'EEEE'); // e.g., "Monday"
+        return mealPlan.filter((meal: any) => meal.day === today);
+    }, [mealPlan]);
+
     // Stats
     const stats = [
         { label: 'Pantry Items', value: pantry?.length || 0, icon: <Box className="size-5 text-green-600" />, bg: 'bg-green-100', link: '/pantry' },
         { label: 'Recipes', value: recipes?.length || 0, icon: <BookOpen className="size-5 text-rose-600" />, bg: 'bg-rose-100', link: '/recipes' },
-        { label: 'Meals Planned', value: mealPlan?.reduce((acc: number, d: any) => acc + (d.meals?.length || 0), 0) || 0, icon: <Calendar className="size-5 text-orange-600" />, bg: 'bg-orange-100', link: '/planner' },
-        { label: 'Avg. Match', value: '72%', icon: <Activity className="size-5 text-blue-600" />, bg: 'bg-blue-100', link: '/recipes' },
+        { label: 'Meals Planned', value: mealPlan?.length || 0, icon: <Calendar className="size-5 text-orange-600" />, bg: 'bg-orange-100', link: '/planner' },
+        { label: 'Avg. Match', value: `${avgMatch}%`, icon: <Activity className="size-5 text-blue-600" />, bg: 'bg-blue-100', link: '/recipes' },
     ];
 
     return (
@@ -88,7 +120,7 @@ export function DashboardHome() {
                             </div>
                             <h3 className="text-2xl font-bold mb-2">Dinner Ideas?</h3>
                             <p className="text-primary-foreground/80 leading-relaxed mb-6">
-                                Based on your pantry, we found 3 recipes you can make right now!
+                                Based on your pantry, we found {matchedRecipes.filter((r: any) => r.matchPercentage > 50).length} recipes you can strictly make!
                             </p>
                         </div>
                         <Link to="/recipes">
@@ -112,25 +144,21 @@ export function DashboardHome() {
                     </div>
 
                     <div className="space-y-4 flex-1">
-                        {/* Placeholder for now since meal plan structure is complex */}
-                        <div className="flex gap-4 items-start p-3 rounded-xl hover:bg-secondary/50 transition-colors cursor-pointer">
-                            <div className="size-10 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center shrink-0">
-                                <Clock className="size-5" />
-                            </div>
-                            <div>
-                                <h4 className="font-bold text-sm">Avocado Toast Supreme</h4>
-                                <p className="text-xs text-muted-foreground">Breakfast • 8:00 AM</p>
-                            </div>
-                        </div>
-                        <div className="flex gap-4 items-start p-3 rounded-xl hover:bg-secondary/50 transition-colors cursor-pointer">
-                            <div className="size-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center shrink-0">
-                                <Clock className="size-5" />
-                            </div>
-                            <div>
-                                <h4 className="font-bold text-sm">Mediterranean Salad</h4>
-                                <p className="text-xs text-muted-foreground">Lunch • 12:30 PM</p>
-                            </div>
-                        </div>
+                        {todaysPlan.length > 0 ? (
+                            todaysPlan.map((meal: any, idx: number) => (
+                                <div key={idx} className="flex gap-4 items-start p-3 rounded-xl hover:bg-secondary/50 transition-colors cursor-pointer">
+                                    <div className={`size-10 rounded-full ${meal.color === 'bg-orange-100' ? 'text-orange-600' : 'text-blue-600'} ${meal.color || 'bg-secondary'} flex items-center justify-center shrink-0`}>
+                                        <Clock className="size-5" />
+                                    </div>
+                                    <div>
+                                        <h4 className="font-bold text-sm">{meal.description}</h4>
+                                        <p className="text-xs text-muted-foreground">{meal.day} • Meal</p>
+                                    </div>
+                                </div>
+                            ))
+                        ) : (
+                            <p className="text-sm text-muted-foreground text-center py-4">No meals planned for today.</p>
+                        )}
                     </div>
                 </div>
             </div>
@@ -146,7 +174,7 @@ export function DashboardHome() {
                     </Link>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {recipes?.slice(0, 3).map((recipe: any) => (
+                    {matchedRecipes.slice(0, 3).map((recipe: any) => (
                         <Link to="/recipes" key={recipe.id || recipe._id} className="group">
                             <div className="bg-card rounded-2xl overflow-hidden border border-border/50 shadow-sm hover:shadow-xl transition-all h-full flex flex-col">
                                 <div className="h-48 overflow-hidden relative">
@@ -159,15 +187,15 @@ export function DashboardHome() {
                                     <div className="mb-4">
                                         <div className="flex justify-between text-xs font-semibold mb-1">
                                             <span>Pantry Match</span>
-                                            <span className="text-green-600">92%</span>
+                                            <span className={`${recipe.matchPercentage > 70 ? 'text-green-600' : 'text-orange-500'}`}>{recipe.matchPercentage}%</span>
                                         </div>
                                         <div className="h-1.5 w-full bg-secondary rounded-full overflow-hidden">
-                                            <div className="h-full bg-green-500" style={{ width: '92%' }} />
+                                            <div className={`h-full ${recipe.matchPercentage > 70 ? 'bg-green-500' : 'bg-orange-500'}`} style={{ width: `${recipe.matchPercentage}%` }} />
                                         </div>
                                     </div>
                                     <h4 className="font-bold text-lg mb-1 group-hover:text-primary transition-colors">{recipe.title}</h4>
                                     <p className="text-sm text-muted-foreground line-clamp-2 mb-4 flex-1">
-                                        Delicious and healthy option for your meal.
+                                        Delicious option based on your pantry.
                                     </p>
                                     <div className="flex gap-3 text-xs font-medium text-muted-foreground mt-auto">
                                         <span className="bg-secondary px-2 py-1 rounded-md">{recipe.time}</span>
@@ -177,6 +205,11 @@ export function DashboardHome() {
                             </div>
                         </Link>
                     ))}
+                    {matchedRecipes.length === 0 && (
+                        <div className="col-span-3 text-center py-10 text-muted-foreground">
+                            No recipes available to match. Add some recipes!
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
